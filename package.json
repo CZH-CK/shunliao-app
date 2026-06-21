@@ -1,0 +1,27 @@
+{
+  "name": "shunliao-app",
+  "version": "1.0.0",
+  "description": "顺聊 - 一款简洁的即时通讯应用",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "sync": "npx cap sync android",
+    "open:android": "npx cap open android",
+    "build:android": "cd android && ./gradlew assembleDebug",
+    "build:android:release": "cd android && ./gradlew assembleRelease"
+  },
+  "keywords": [
+    "chat",
+    "messaging",
+    "capacitor",
+    "android",
+    "ios"
+  ],
+  "author": "顺聊团队",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1"
+  }
+}

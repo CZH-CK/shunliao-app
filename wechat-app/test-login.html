@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>顺聊 - 登录测试</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+.container { width: 100%; max-width: 420px; background: white; border-radius: 16px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin-top: 20px; }
+h1 { text-align: center; color: #07C160; margin-bottom: 6px; font-size: 26px; }
+.subtitle { text-align: center; color: #999; font-size: 13px; margin-bottom: 24px; }
+.form-group { margin-bottom: 18px; }
+label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; font-weight: 600; }
+input, textarea { width: 100%; padding: 12px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; transition: border-color 0.3s; }
+input:focus, textarea:focus { outline: none; border-color: #07C160; }
+textarea { resize: vertical; min-height: 70px; font-family: monospace; font-size: 11px; }
+button { width: 100%; padding: 14px; background: linear-gradient(135deg, #07C160, #06AD56); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: transform 0.2s, box-shadow 0.2s; }
+button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(7,193,96,0.4); }
+button:active { transform: translateY(0); }
+button:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+button.secondary { background: linear-gradient(135deg, #1989FA, #1677E6); }
+button.danger { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
+#status { margin-top: 16px; padding: 14px; border-radius: 10px; font-size: 13px; line-height: 1.8; }
+.status-success { background: #f0f9ec; color: #07C160; border: 2px solid #c8e6c9; }
+.status-error { background: #fef0f0; color: #f56c6c; border: 2px solid #fbc4c4; }
+.status-info { background: #f0f9ff; color: #1989FA; border: 2px solid #cce5ff; }
+#chat-area { display: none; margin-top: 24px; }
+#messages { height: 350px; overflow-y: auto; border: 2px solid #eee; border-radius: 10px; padding: 14px; margin-bottom: 14px; background: #f8f8f8; }
+.msg { margin-bottom: 12px; padding: 10px 14px; background: white; border-radius: 10px; max-width: 80%; word-break: break-all; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.msg.self { background: #95EC69; margin-left: auto; }
+.msg .from { font-size: 11px; color: #999; margin-bottom: 4px; }
+.quick-users { display: flex; gap: 10px; margin-bottom: 16px; }
+.quick-users button { flex: 1; padding: 10px; font-size: 13px; background: #f5f5f5; color: #333; border: 2px solid #eee; }
+.quick-users button:hover { background: #07C160; color: white; border-color: #07C160; }
+.quick-users button.active { background: #07C160; color: white; border-color: #07C160; }
+.mode-switch { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 13px; color: #666; }
+.switch { position: relative; width: 44px; height: 24px; background: #ccc; border-radius: 12px; cursor: pointer; transition: background 0.3s; }
+.switch.active { background: #07C160; }
+.switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; }
+.switch.active::after { transform: translateX(20px); }
+#sdk-status { font-size: 13px; text-align: center; margin-bottom: 16px; padding: 10px; border-radius: 8px; }
+.hint { font-size: 12px; color: #999; margin-top: 6px; line-height: 1.6; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 999; display: none; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="container">
+  <h1>💬 顺聊</h1>
+  <div class="subtitle">顺顺利利 · 畅快聊天</div>
+  
+  <div class="mode-switch">
+    <span>模拟模式</span>
+    <div class="switch active" id="modeSwitch" onclick="toggleMode()"></div>
+    <span>真实 IM</span>
+  </div>
+
+  <div id="sdk-status" style="background:#f0f9ff;color:#1989FA;border:1px solid #cce5ff;">
+    📦 模拟模式已启用（可离线测试）
+  </div>
+
+  <div class="form-group">
+    <label>👤 用户ID</label>
+    <input type="text" id="userID" placeholder="输入用户ID，如: user001" value="user001">
+  </div>
+
+  <div class="form-group" id="sigGroup">
+    <label>🔑 UserSig <span style="font-weight:normal;color:#999;">（模拟模式可不填）</span></label>
+    <textarea id="userSig" placeholder="模拟模式留空即可，真实模式需粘贴有效 UserSig"></textarea>
+  </div>
+
+  <div class="quick-users">
+    <button onclick="fillUser('user001')" id="btn001">user001</button>
+    <button onclick="fillUser('user002')" id="btn002">user002</button>
+    <button onclick="fillUser('user003')" id="btn003">user003</button>
+  </div>
+
+  <button id="loginBtn" onclick="doLogin()">🚀 登录</button>
+  <button class="danger" onclick="doLogout()" style="margin-top:10px">退出登录</button>
+
+  <div id="status" class="status-info">
+    💡 提示：模拟模式下直接输入用户ID点登录即可，无需 UserSig
+  </div>
+</div>
+
+<div class="container" id="chat-area">
+  <h2 style="font-size:18px;margin-bottom:16px;color:#333;">💬 聊天测试</h2>
+  
+  <div style="display:flex;gap:10px;margin-bottom:14px;">
+    <input type="text" id="targetUser" placeholder="发送给谁？" value="user002" style="flex:1;">
+  </div>
+
+  <div id="messages"><div style="color:#bbb;font-size:13px;text-align:center;padding:40px 0;">发送第一条消息吧 ✨</div></div>
+  
+  <div style="display:flex;gap:10px;">
+    <input type="text" id="msgInput" placeholder="输入消息，回车发送..." style="flex:1;">
+    <button onclick="sendMsg()" style="width:auto;padding:12px 24px;">发送</button>
+  </div>
+
+  <div style="margin-top:16px;font-size:12px;color:#aaa;text-align:center;">
+    当前用户: <b id="currentUser" style="color:#07C160;"></b> |
+    <a href="index.html" style="color:#1989FA;">返回完整应用 →</a>
+  </div>
+</div>
+
+<!-- SDK 加载（优先本地模拟，可选真实 SDK）-->
+<script src="tim-sdk-mock.js"></script>
+<!-- 真实 SDK（需要网络）：<script src="https://web.sdk.qcloud.com/im/sdk/v3/script/index.js"></script> -->
+
+<script>
+// ========== 配置 ==========
+const SDKAppID = 1600147983;
+let useRealSDK = false;
+let tim = null;
+let currentUserID = '';
+
+// ========== 模式切换 ==========
+function toggleMode() {
+  const sw = document.getElementById('modeSwitch');
+  const sigGroup = document.getElementById('sigGroup');
+  const sdkStatus = document.getElementById('sdk-status');
+  
+  useRealSDK = !useRealSDK;
+  
+  if (useRealSDK) {
+    sw.classList.add('active');
+    sigGroup.style.display = 'block';
+    sdkStatus.innerHTML = '⚠️ 真实模式需要加载腾讯云 IM SDK（需要网络连接）';
+    sdkStatus.style.background = '#fff8e6';
+    sdkStatus.style.color = '#e6a23c';
+    sdkStatus.style.borderColor = '#f5d999';
+    showToast('切换至真实模式，正在加载 SDK...');
+    
+    // 尝试加载真实 SDK
+    if (typeof TIM !== 'undefined' && TIM.create) {
+      sdkStatus.innerHTML = '✅ 真实 SDK 已就绪';
+      sdkStatus.style.background = '#f0f9ec';
+      sdkStatus.style.color = '#07C160';
+      sdkStatus.style.borderColor = '#c8e6c9';
+    }
+  } else {
+    sw.classList.remove('active');
+    sigGroup.style.display = 'block';
+    sdkStatus.innerHTML = '📦 模拟模式已启用（可离线测试）';
+    sdkStatus.style.background = '#f0f9ff';
+    sdkStatus.style.color = '#1989FA';
+    sdkStatus.style.borderColor = '#cce5ff';
+    showToast('已切换至模拟模式');
+  }
+}
+
+// ========== 快捷填充 ==========
+function fillUser(uid) {
+  document.getElementById('userID').value = uid;
+  // 高亮当前选中按钮
+  ['btn001','btn002','btn003'].forEach(function(id) {
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('btn' + uid.replace('user','')).classList.add('active');
+  showToast('已选择 ' + uid);
+}
+// 预置 UserSig（从本地生成，仅模拟模式使用）
+const userSigPreset = {
+  'user001': 'eJwtjF0LgjAYRv_Lex06tzWX0FUf2geRJdWt4JIXUdbcQor-e6JePuc8nC9kx6v3VgYioB6B2bCxUI3FJw7YtcoQEkyqLapcaywgCkRPebiQbDSq02gURIJwScjILNaqtXmt-3soqRCUs3AKYdnHD52fpqU1zonV5lWf6OV-W8dNek6cX7G5eMh492H7baL5En5_QHAy4Q==',
+  'user002': 'eJwtjFELgjAURv-LXgu5zrVNoaceCoqIVKLegl3jJosxdUnRf0_Ux--cj-NlxSGPAnqWMR4BW46bDL5aqmjEXYMegM-qMfXdOTIsiyVALFSqk8lg78gjyyQIDTCxliw27d264a40l5KLRM0hegxxdbu8F-lnV5xUbzzUVdmBDVtL52fQeV-u7LEIsBG4v67Z7w9J8TPB',
+  'user003': 'eJwtjNEKgjAYRt9l1yG_m2wmdFF0IVZYFFneTbbiz6yhW0nRuyfq5XfOx_mSw3rvvXRNIkI9IJN-o9IPixfssWt0DcBG1ahSGoOKRD4H8AMxDdlgdGuw1iTiEIQAA7NY6cbKynR3EVLOacDEGMJrF9-eIHuulHQLY4uY5UleUH2PnTouk1bcUvc-z9PdJvtgOSO-P09oNDM='
+};
+
+// ========== Toast 提示 ==========
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(function() { toast.style.display = 'none'; }, 2000);
+}
+
+// ========== 状态显示 ==========
+function setStatus(msg, type) {
+  var el = document.getElementById('status');
+  el.innerHTML = msg;
+  el.className = '';
+  if (type) el.classList.add('status-' + type);
+}
+
+// ========== 登录 ==========
+async function doLogin() {
+  var userID = document.getElementById('userID').value.trim();
+  var userSig = document.getElementById('userSig').value.trim();
+
+  if (!userID) { setStatus('⚠️ 请输入用户ID', 'error'); return; }
+
+  if (useRealSDK && !userSig) {
+    setStatus('⚠️ 真实模式需要粘贴有效的 UserSig', 'error');
+    return;
+  }
+
+  // 模拟模式自动生成 UserSig
+  if (!useRealSDK && !userSig) {
+    userSig = 'mock_usersig_' + userID + '_' + Date.now();
+  }
+
+  setStatus('⏳ 正在登录...', 'info');
+  document.getElementById('loginBtn').disabled = true;
+
+  try {
+    tim = TIM.create({ SDKAppID: SDKAppID });
+
+    // 监听事件
+    tim.on(TIM.EVENT.SDK_READY, function() {
+      setStatus('✅ 登录成功！用户: <b>' + userID + '</b><br>可以开始聊天测试', 'success');
+      document.getElementById('chat-area').style.display = 'block';
+      document.getElementById('currentUser').textContent = userID;
+      currentUserID = userID;
+    });
+
+    tim.on(TIM.EVENT.MESSAGE_RECEIVED, function(event) {
+      event.data.forEach(function(msg) {
+        if (msg.type === 'MSG_TEXT' || (msg.payload && msg.payload.text)) {
+          addMessage(msg.from || '未知', msg.payload.text, msg.from === currentUserID);
+        }
+      });
+    });
+
+    tim.on(TIM.EVENT.ERROR, function(event) {
+      setStatus('❌ IM 错误: ' + JSON.stringify(event.data), 'error');
+    });
+
+    var res = await tim.login({ userID: userID, userSig: userSig });
+    console.log('登录成功:', res);
+
+  } catch (err) {
+    console.error('登录失败:', err);
+    setStatus('❌ 登录失败: ' + (err.message || JSON.stringify(err)), 'error');
+    document.getElementById('loginBtn').disabled = false;
+  }
+}
+
+// ========== 退出登录 ==========
+async function doLogout() {
+  if (tim) {
+    await tim.logout();
+    try { tim.destroy(); } catch(e) {}
+    tim = null;
+  }
+  document.getElementById('chat-area').style.display = 'none';
+  document.getElementById('loginBtn').disabled = false;
+  setStatus('👋 已退出登录', 'info');
+  showToast('已退出登录');
+}
+
+// ========== 发送消息 ==========
+async function sendMsg() {
+  var input = document.getElementById('msgInput');
+  var text = input.value.trim();
+  var target = document.getElementById('targetUser').value.trim();
+  
+  if (!text || !tim) return;
+  if (!target) { showToast('请填写接收方用户ID'); return; }
+
+  try {
+    var message = tim.createTextMessage({
+      to: target,
+      conversationType: TIM.TYPES.CONV_C2C,
+      payload: { text: text }
+    });
+    
+    var res = await tim.sendMessage(message);
+    addMessage(currentUserID, text, true);
+    input.value = '';
+    input.focus();
+  } catch (err) {
+    setStatus('❌ 发送失败: ' + err.message, 'error');
+  }
+}
+
+// ========== 消息显示 ==========
+function addMessage(from, text, isSelf) {
+  var el = document.getElementById('messages');
+  // 清除占位提示
+  if (el.children.length === 1 && el.children[0].style.textAlign === 'center') {
+    el.innerHTML = '';
+  }
+  var div = document.createElement('div');
+  div.className = 'msg' + (isSelf ? ' self' : '');
+  div.innerHTML = '<div class="from">' + (isSelf ? '我' : from) + '</div>' + escapeHtml(text);
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ========== 回车发送 ==========
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('chat-area').style.display === 'block') {
+    sendMsg();
+  }
+});
+
+// 页面加载完成
+console.log('顺聊测试页面已加载');
+</script>
+
+</body>
+</html>

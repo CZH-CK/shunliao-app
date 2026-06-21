@@ -1,0 +1,14 @@
+===== 顺聊测试账号 UserSig =====
+SDKAppID: 1600147983
+生成时间: 2026-06-22 00:00:37
+有效期: 7天
+
+【user001】
+eJwtjF0LgjAYRv/Lex06tzWX0FUf2geRJdWt4JIXUdbcQor+e6JePuc8nC9kx6v3VgYioB6B2bCxUI3FJw7YtcoQEkyqLapcaywgCkRPebiQbDSq02gURIJwScjILNaqtXmt+3soqRCUs3AKYdnHD52fpqU1zonV5lWf6OV+W8dNek6cX7G5eMh492H7baL5En5/QHAy4Q==
+
+【user002】
+eJwtjFELgjAURv/LXgu5zrVNoaceCoqIVKLegl3jJosxdUnRf0/Ux++cj/NlxSGPAnqWMR4BW46bDL5aqmjEXYMegM+qMfXdOTIsiyVALFSqk8lg78gjyyQIDTCxliw27d264a40l5KLRM0hegxxdbu8F+lnV5xUbzzUVdmBDVtL52fQeV+u7LEIsBG4v67Z7w9J8TPB
+
+【user003】
+eJwtjNEKgjAYRt9l1yG/m2wmdFF0IVZYFFneTbbiz6yhW0nRuyfq5XfOx/mSw3rvvXRNIkI9IJN+o9IPixfssWt0DcBG1ahSGoOKRD4H8AMxDdlgdGuw1iTiEIQAA7NY6cbKynR3EVLOacDEGMJrF9+eIHuulHQLY4uY5UleUH2PnTouk1bcUvc+z9PdJvtgOSO/P09oNDM=
+

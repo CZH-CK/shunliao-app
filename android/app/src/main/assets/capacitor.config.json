@@ -1,0 +1,17 @@
+{
+	"appId": "com.shunliao.app",
+	"appName": "顺聊",
+	"webDir": "wechat-app",
+	"bundledWebRuntime": false,
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 3000,
+			"backgroundColor": "#07C160"
+		}
+	},
+	"capacitorRuntime": {
+		"android": {
+			"allowMixedContent": true
+		}
+	}
+}
