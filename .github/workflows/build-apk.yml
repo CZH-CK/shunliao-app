@@ -29,14 +29,17 @@ jobs:
     - name: Install npm dependencies
       run: npm install
 
-    - name: Sync Capacitor Android
+    - name: Copy keystore to android directory
+      run: cp shunliao-release-key.p12 android/
+
+    - name: Sync Capacitor (update Android assets)
       run: npx cap sync android
 
     - name: Make gradlew executable
       working-directory: android
       run: chmod +x gradlew
 
-    - name: Build Release APK (fixed signature)
+    - name: Build Release APK (with fixed signature)
       working-directory: android
       run: ./gradlew assembleRelease --stacktrace
 
@@ -47,7 +50,7 @@ jobs:
         path: android/app/build/outputs/apk/release/*.apk
         retention-days: 90
 
-    - name: Get APK info
+    - name: Show APK info
       run: |
         echo "APK 构建完成！"
         ls -la android/app/build/outputs/apk/release/
