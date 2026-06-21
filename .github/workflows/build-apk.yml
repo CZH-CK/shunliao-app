@@ -3,13 +3,11 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Release APK
     runs-on: ubuntu-latest
     
     steps:
@@ -26,30 +24,30 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
+        cache: 'npm'
 
-    - name: Install dependencies
+    - name: Install npm dependencies
       run: npm install
 
-    - name: Install Capacitor CLI
-      run: npm install -g @capacitor/cli@latest @capacitor/core@latest @capacitor/android@latest
+    - name: Sync Capacitor Android
+      run: npx cap sync android
 
-    - name: Init and add Android platform (fresh)
-      run: |
-        rm -rf android
-        npx cap init "顺聊" com.shunliao.app --web-dir wechat-app
-        npx cap add android
-        npx cap sync android
-
-    - name: Fix permissions and build APK
+    - name: Make gradlew executable
       working-directory: android
-      run: |
-        chmod +x gradlew
-        ./gradlew assembleDebug --stacktrace
+      run: chmod +x gradlew
 
-    - name: Upload Debug APK
+    - name: Build Release APK (fixed signature)
+      working-directory: android
+      run: ./gradlew assembleRelease --stacktrace
+
+    - name: Upload Release APK
       uses: actions/upload-artifact@v4
-      if: always()
       with:
-        name: shunliao-debug-apk
-        path: android/app/build/outputs/apk/debug/*.apk
-        retention-days: 30
+        name: shunliao-app-v1.0
+        path: android/app/build/outputs/apk/release/*.apk
+        retention-days: 90
+
+    - name: Get APK info
+      run: |
+        echo "APK 构建完成！"
+        ls -la android/app/build/outputs/apk/release/
