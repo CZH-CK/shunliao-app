@@ -26,22 +26,23 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
+        cache: 'npm'
 
-    - name: Install npm dependencies
+    - name: Install dependencies
       run: npm install
 
-    - name: Install Capacitor CLI globally
-      run: npm install -g @capacitor/cli@latest
+    - name: Install Capacitor CLI
+      run: npm install -g @capacitor/cli@latest @capacitor/core@latest @capacitor/android@latest
 
-    - name: Sync web assets to Android project
-      run: npx cap sync android
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x android/gradlew
+    - name: Init and add Android platform
+      run: |
+        npx cap init shunliao com.shunliao.app --web-dir wechat-app
+        npx cap add android || true
+        npx cap sync android
 
     - name: Build Debug APK
       working-directory: android
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --stacktrace --info 2>&1 | head -200
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
